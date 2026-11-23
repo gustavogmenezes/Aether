@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aether-storytelling-system"
+version = "0.1.0"
+description = "Local-first causal storytelling and RPG simulation engine."
+requires-python = ">=3.11"
+dependencies = [
+    "alembic>=1.14,<2",
+    "pydantic>=2.10,<3",
+    "sqlalchemy>=2.0,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<10",
+]
+
+[tool.setuptools]
+packages = [
+    "aether.contracts",
+    "aether.domain",
+    "aether.engines",
+    "aether.application",
+    "aether.infrastructure",
+]
+
+[tool.setuptools.package-dir]
+"aether.contracts" = "packages/contracts/src/aether/contracts"
+"aether.domain" = "packages/domain/src/aether/domain"
+"aether.engines" = "packages/engines/src/aether/engines"
+"aether.application" = "packages/application/src/aether/application"
+"aether.infrastructure" = "packages/infrastructure/src/aether/infrastructure"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["packages"]
+pythonpath = [
+    "packages/contracts/src",
+    "packages/domain/src",
+    "packages/engines/src",
+    "packages/infrastructure/src",
+    "packages/application/src",
+]
+
+[tool.pyright]
+extraPaths = [
+    "packages/contracts/src",
+    "packages/domain/src",
+    "packages/engines/src",
+    "packages/infrastructure/src",
+    "packages/application/src",
+]
+pythonVersion = "3.11"
+
+[tool.coverage.run]
+branch = true
+source = [
+    "packages/contracts/src/aether/contracts",
+    "packages/domain/src/aether/domain",
+    "packages/engines/src/aether/engines",
+    "packages/application/src/aether/application",
+    "packages/infrastructure/src/aether/infrastructure",
+]
