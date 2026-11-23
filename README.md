@@ -1,4 +1,4 @@
-# Aether Storytelling System — Copilot Handoff
+# Aether Storytelling System
 
 This repository contains the Aether Storytelling System architectural specification package, prepared to guide development assisted by GitHub Copilot.
 
