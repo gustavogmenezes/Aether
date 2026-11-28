@@ -78,3 +78,13 @@ Fine-tuning/LoRA is not an initial premise. Graphify is a code-graph development
 | DEC-013 | Simulation Run, LLM Invocation, and Agent Proposal records support atomic, idempotent recovery. | Physical persistence mapping and the detailed recovery state machine. |
 
 The approved architectural direction remains binding while these specifications are open.
+
+## Operational model benchmark drafts
+
+- `operational-model-benchmark.md` defines the required evidence protocol.
+- `dec-001-local-model-selection.md` is a draft selection record.
+- `dec-002-model-lifecycle.md` is a draft lifecycle record.
+- `dec-003-resource-concurrency.md` is a draft resource-concurrency record.
+
+Their current status is evidence-gathering. No model, runtime, lifecycle value,
+or concurrency limit is approved merely by the existence of these drafts.

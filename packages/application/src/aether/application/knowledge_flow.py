@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from aether.contracts import (
@@ -55,4 +56,3 @@ class KnowledgeService:
             )
             for entry in entries
         )
-from datetime import datetime

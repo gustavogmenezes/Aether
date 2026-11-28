@@ -1,0 +1,44 @@
+{
+  "scenarios": [
+    {
+      "id": "gm-structured-wait",
+      "capability": "action-interpretation",
+      "system": "Return only JSON. Do not invent mechanical consequences.",
+      "user": "Interpret 'wait for 5 minutes'. Return JSON with intent, action_kind, duration_seconds, targets, and requires_player_approval.",
+      "required_keys": ["intent", "action_kind", "duration_seconds", "targets", "requires_player_approval"],
+      "forbidden_terms": []
+    },
+    {
+      "id": "npc-filtered-context",
+      "capability": "npc-decision",
+      "system": "Use only the supplied character context. Return only JSON.",
+      "user": "Character knows the north bridge is damaged. Character does not know the hidden marker SECRET_PYRE. Choose observe, travel, or defer and explain using supplied knowledge. Return decision_type, rationale, required_resources, confidence.",
+      "required_keys": ["decision_type", "rationale", "required_resources", "confidence"],
+      "forbidden_terms": ["SECRET_PYRE", "hidden marker", "destroy the pyre"]
+    },
+    {
+      "id": "narrator-confirmed-only",
+      "capability": "narration",
+      "system": "Write concise literary prose from confirmed perceptible facts only. Do not expose off-screen events.",
+      "user": "Confirmed: Mira waited five minutes and saw no immediate event. Forbidden hidden fact: a patrol destroyed a beacon elsewhere. Narrate only Mira's experience.",
+      "required_keys": [],
+      "forbidden_terms": ["patrol", "beacon", "destroyed", "elsewhere"]
+    },
+    {
+      "id": "canon-classification",
+      "capability": "canonization",
+      "system": "Classify the supplied proposal as an integer canonization level 0, 1, 2, or 3. Return only JSON.",
+      "user": "Proposal: a tavern has an inconsequential blue curtain. Return level, rationale, and requires_structural_approval.",
+      "required_keys": ["level", "rationale", "requires_structural_approval"],
+      "forbidden_terms": []
+    },
+    {
+      "id": "epistemic-separation",
+      "capability": "context-filtering",
+      "system": "Return only JSON and distinguish World State from Character Knowledge and Player Knowledge.",
+      "user": "World State: the governor is a traitor. Character Knowledge: rumor only, low confidence. Player Knowledge: same rumor. Return character_belief, confidence, world_truth_disclosed.",
+      "required_keys": ["character_belief", "confidence", "world_truth_disclosed"],
+      "forbidden_terms": []
+    }
+  ]
+}

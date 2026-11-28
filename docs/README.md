@@ -17,6 +17,13 @@
 
 `decisions/00001-mvp-decisions.md` is the approved foundational decision record. `decisions/00002-model-decisions.md` is the approved operational model record. Both are part of the mandatory reading hierarchy; their derived technical specifications remain subject to dedicated analysis, benchmarking, and approval.
 
+Operational model selection is governed by
+`specifications/operational-model-benchmark.md` and the draft records
+`specifications/dec-001-local-model-selection.md`,
+`specifications/dec-002-model-lifecycle.md`, and
+`specifications/dec-003-resource-concurrency.md`. These records remain drafts
+until benchmark evidence is collected and approved.
+
 ## Validations
 
 Each validation is recorded individually. The status `APPROVED` indicates an approved decision. Traceability notes identify records reconstructed from preserved summaries and decisions rather than a complete original transcript.

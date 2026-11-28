@@ -25,6 +25,7 @@ packages = [
     "aether.engines",
     "aether.application",
     "aether.infrastructure",
+    "aether.agents",
 ]
 
 [tool.setuptools.package-dir]
@@ -33,16 +34,19 @@ packages = [
 "aether.engines" = "packages/engines/src/aether/engines"
 "aether.application" = "packages/application/src/aether/application"
 "aether.infrastructure" = "packages/infrastructure/src/aether/infrastructure"
+"aether.agents" = "packages/agents/src/aether/agents"
 
 [tool.pytest.ini_options]
 addopts = "-q"
-testpaths = ["packages"]
+testpaths = ["packages", "tools/tests"]
 pythonpath = [
+    ".",
     "packages/contracts/src",
     "packages/domain/src",
     "packages/engines/src",
     "packages/infrastructure/src",
     "packages/application/src",
+    "packages/agents/src",
 ]
 
 [tool.pyright]
@@ -52,6 +56,7 @@ extraPaths = [
     "packages/engines/src",
     "packages/infrastructure/src",
     "packages/application/src",
+    "packages/agents/src",
 ]
 pythonVersion = "3.11"
 

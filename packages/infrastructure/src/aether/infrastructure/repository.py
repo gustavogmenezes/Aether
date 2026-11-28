@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from datetime import timedelta
 from decimal import Decimal
 from uuid import UUID
 
@@ -49,6 +50,102 @@ from aether.contracts import (
     ResourceReservation,
     ResourceTransaction,
     ResourceEffect,
+    MembershipStatus,
+    OrganizationAuthorityGrant,
+    OrganizationDecisionContext,
+    OrganizationDecisionProposal,
+    OrganizationDecisionProposalStatus,
+    OrganizationDecisionType,
+    OrganizationGoal,
+    OrganizationGovernance,
+    OrganizationIdentity,
+    OrganizationMembership,
+    OrganizationMotive,
+    OrganizationPlan,
+    OrganizationPlanStep,
+    OrganizationRole,
+    OrganizationStatus,
+    ActorPosition,
+    ActorReference,
+    ActorType,
+    ClaimSemantics,
+    ControlStatus,
+    InfrastructureFacility,
+    InfrastructureNode,
+    Journey,
+    JourneyStatus,
+    ResourceCharge,
+    Location,
+    LocationType,
+    TerritoryClaim,
+    TransportMode,
+    TransportRoute,
+    TransportRouteSegment,
+    EcologicalProcess,
+    Habitat,
+    HealthCondition,
+    HealthState,
+    LifecycleStage,
+    OrganismKind,
+    Population,
+    PopulationCohort,
+    Species,
+    AssessmentOutcome,
+    CharacterLanguageProficiency,
+    Dialect,
+    EducationEnrollment,
+    EducationProgram,
+    IndividualBeliefRecord,
+    KnowledgeArtifact,
+    KnowledgeLifecycleRecord,
+    Language,
+    LearningOpportunity,
+    MetaphysicalTruth,
+    ReligionTradition,
+    RitualCompletion,
+    Technology,
+    WritingSystem,
+    Appeal,
+    DiplomaticAction,
+    EvidenceRecord,
+    IntelligenceOperation,
+    Investigation,
+    LegalCase,
+    LegalProceeding,
+    NormativeRule,
+    NormativeSystem,
+    Offense,
+    OrganizationRelation,
+    Sanction,
+    SecurityIncident,
+    SecurityResolution,
+    SecurityThreat,
+    StrategicConflict,
+    Treaty,
+    CollectiveReception,
+    CreativeWork,
+    GeneratedAsset,
+    LeisureRoutine,
+    PublicChannel,
+    PublicInformation,
+    SonicIdentity,
+    VisualIdentity,
+    CanonicalProposal,
+    CanonicalRecord,
+    CharacterProgressionApplication,
+    CharacterProgressionEvidence,
+    CharacterProgressionProposal,
+    CharacterProgressionValidation,
+    CharacterSheet,
+    AggregatePopulationSourceLink,
+    MaterializedIndividualLink,
+    SimulationTierState,
+    SimulationTierTransitionResult,
+    CultureDefinition,
+    SocialGroup,
+    IndividualCulturalAffiliation,
+    CulturalChangeRecord,
+    CulturalAffiliationTargetType,
 )
 from aether.domain import (
     DuplicateSimulationRunError,
@@ -81,12 +178,196 @@ from .models import (
     ResourceBalanceModel,
     ResourceReservationModel,
     ResourceTransactionModel,
+    OrganizationAuthorityGrantModel,
+    OrganizationDecisionProposalModel,
+    OrganizationGoalModel,
+    OrganizationGovernanceModel,
+    OrganizationIdentityModel,
+    OrganizationMembershipModel,
+    OrganizationMotiveModel,
+    OrganizationPlanModel,
+    OrganizationPlanStepModel,
+    ActorPositionModel,
+    InfrastructureFacilityModel,
+    InfrastructureNodeModel,
+    JourneyModel,
+    LocationModel,
+    TerritoryClaimModel,
+    TransportRouteModel,
+    TransportRouteSegmentModel,
+    EcologicalProcessModel,
+    HabitatModel,
+    HealthStateModel,
+    PopulationModel,
+    SpeciesModel,
+    AssessmentOutcomeModel,
+    CharacterLanguageProficiencyModel,
+    DialectModel,
+    EducationEnrollmentModel,
+    EducationProgramModel,
+    IndividualBeliefRecordModel,
+    KnowledgeArtifactModel,
+    KnowledgeLifecycleRecordModel,
+    LanguageModel,
+    LearningOpportunityModel,
+    MetaphysicalTruthModel,
+    ReligionTraditionModel,
+    RitualCompletionModel,
+    TechnologyModel,
+    WritingSystemModel,
+    AppealModel,
+    DiplomaticActionModel,
+    EvidenceRecordModel,
+    IntelligenceOperationModel,
+    InvestigationModel,
+    LegalCaseModel,
+    LegalProceedingModel,
+    NormativeRuleModel,
+    NormativeSystemModel,
+    OffenseModel,
+    OrganizationRelationModel,
+    SanctionModel,
+    SecurityIncidentModel,
+    SecurityResolutionModel,
+    SecurityThreatModel,
+    StrategicConflictModel,
+    TreatyModel,
+    CollectiveReceptionModel,
+    CreativeWorkModel,
+    GeneratedAssetModel,
+    LeisureRoutineModel,
+    PublicChannelModel,
+    PublicInformationModel,
+    SonicIdentityModel,
+    VisualIdentityModel,
+    CanonicalProposalModel,
+    CanonicalRecordModel,
+    CharacterProgressionApplicationModel,
+    CharacterProgressionEvidenceModel,
+    CharacterProgressionProposalModel,
+    CharacterProgressionValidationModel,
+    CharacterSheetModel,
+    AggregatePopulationSourceLinkModel,
+    MaterializedIndividualLinkModel,
+    SimulationTierStateModel,
+    SimulationTierTransitionResultModel,
+    CultureDefinitionModel,
+    SocialGroupModel,
+    IndividualCulturalAffiliationModel,
+    CulturalChangeRecordModel,
 )
 
 
 class SqlAlchemySimulationRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
+
+    def get_tier_transition_result(
+        self, request_id: UUID
+    ) -> SimulationTierTransitionResult | None:
+        model = self._session.get(
+            SimulationTierTransitionResultModel, str(request_id)
+        )
+        return (
+            SimulationTierTransitionResult.model_validate(model.payload)
+            if model
+            else None
+        )
+
+    def save_tier_transition_result(
+        self, result: SimulationTierTransitionResult
+    ) -> None:
+        self._session.add(
+            SimulationTierTransitionResultModel(
+                request_id=str(result.request.request_id),
+                world_id=str(result.request.world_id),
+                payload=result.model_dump(mode="json"),
+            )
+        )
+
+    def get_simulation_tier_state(
+        self, entity_id: UUID
+    ) -> SimulationTierState | None:
+        model = self._session.get(SimulationTierStateModel, str(entity_id))
+        return SimulationTierState.model_validate(model.payload) if model else None
+
+    def create_simulation_tier_state(self, state: SimulationTierState) -> None:
+        self._session.add(
+            SimulationTierStateModel(
+                entity_id=str(state.entity_id),
+                world_id=str(state.world_id),
+                entity_type=state.entity_type,
+                version=state.provenance.version,
+                payload=state.model_dump(mode="json"),
+            )
+        )
+
+    def save_simulation_tier_state(
+        self, state: SimulationTierState, expected_version: int
+    ) -> None:
+        model = self._session.get(SimulationTierStateModel, str(state.entity_id))
+        if model is None:
+            raise KeyError(f"Unknown simulation tier state {state.entity_id}")
+        self._check_expected_version(model, expected_version)
+        model.version = state.provenance.version
+        model.payload = state.model_dump(mode="json")
+
+    def get_materialized_individual_link(
+        self, character_id: UUID
+    ) -> MaterializedIndividualLink | None:
+        model = self._session.get(
+            MaterializedIndividualLinkModel, str(character_id)
+        )
+        return MaterializedIndividualLink.model_validate(model.payload) if model else None
+
+    def create_materialized_individual_link(
+        self, link: MaterializedIndividualLink
+    ) -> None:
+        self._session.add(
+            MaterializedIndividualLinkModel(
+                character_id=str(link.character_id),
+                population_id=str(link.population_id),
+                cohort_id=str(link.cohort_id),
+                payload=link.model_dump(mode="json"),
+            )
+        )
+
+    def list_aggregate_population_source_links(
+        self, population_id: UUID
+    ) -> tuple[AggregatePopulationSourceLink, ...]:
+        models = self._session.scalars(
+            select(AggregatePopulationSourceLinkModel)
+            .where(
+                AggregatePopulationSourceLinkModel.population_id
+                == str(population_id)
+            )
+            .order_by(AggregatePopulationSourceLinkModel.cohort_id)
+        ).all()
+        return tuple(
+            AggregatePopulationSourceLink.model_validate(model.payload)
+            for model in models
+        )
+
+    def save_aggregate_population_source_link(
+        self, link: AggregatePopulationSourceLink, expected_version: int | None = None
+    ) -> None:
+        model = self._session.get(
+            AggregatePopulationSourceLinkModel,
+            (str(link.population_id), str(link.cohort_id)),
+        )
+        if model is None:
+            self._session.add(
+                AggregatePopulationSourceLinkModel(
+                    population_id=str(link.population_id),
+                    cohort_id=str(link.cohort_id),
+                    version=link.provenance.version,
+                    payload=link.model_dump(mode="json"),
+                )
+            )
+            return
+        self._check_expected_version(model, expected_version)
+        model.version = link.provenance.version
+        model.payload = link.model_dump(mode="json")
 
     def create_clock(self, clock: WorldClockState) -> None:
         self._session.add(
@@ -518,6 +799,34 @@ class SqlAlchemySimulationRepository:
                 alterations=list(transmission.alterations),
                 sender_intent=transmission.sender_intent,
                 reach=transmission.reach,
+                source_language_id=(
+                    str(transmission.source_language_id)
+                    if transmission.source_language_id
+                    else None
+                ),
+                target_language_id=(
+                    str(transmission.target_language_id)
+                    if transmission.target_language_id
+                    else None
+                ),
+                source_dialect_id=(
+                    str(transmission.source_dialect_id)
+                    if transmission.source_dialect_id
+                    else None
+                ),
+                target_dialect_id=(
+                    str(transmission.target_dialect_id)
+                    if transmission.target_dialect_id
+                    else None
+                ),
+                writing_system_id=(
+                    str(transmission.writing_system_id)
+                    if transmission.writing_system_id
+                    else None
+                ),
+                presentation_language=transmission.presentation_language,
+                translation_semantics=list(transmission.translation_semantics),
+                imperfect_translation=transmission.imperfect_translation,
             )
         )
 
@@ -549,6 +858,15 @@ class SqlAlchemySimulationRepository:
         if model is None:
             raise KeyError(f"Unknown information transmission {transmission_id}")
         model.status = TransmissionStatus.INTERPRETED.value
+
+    def mark_transmission_failed(self, transmission_id: UUID) -> None:
+        model = self._session.get(
+            InformationTransmissionModel,
+            str(transmission_id),
+        )
+        if model is None:
+            raise KeyError(f"Unknown information transmission {transmission_id}")
+        model.status = TransmissionStatus.FAILED.value
 
     def create_character_identity(self, identity: CharacterIdentity) -> None:
         self._session.add(
@@ -1169,6 +1487,384 @@ class SqlAlchemySimulationRepository:
         model.version = proposal.provenance.version
         model.updated_at = proposal.provenance.updated_at
 
+    def create_organization_identity(self, identity: OrganizationIdentity) -> None:
+        self._session.add(
+            OrganizationIdentityModel(
+                identity_id=str(identity.identity_id),
+                organization_id=str(identity.organization_id),
+                display_name=identity.display_name,
+                purpose=identity.purpose,
+                history=identity.history,
+                interests=list(identity.interests),
+                relationships=list(identity.relationships),
+                territory_references=list(identity.territory_references),
+                internal_conflicts=list(identity.internal_conflicts),
+                status=identity.status.value,
+                **self._provenance_values(identity.provenance),
+            )
+        )
+
+    def get_organization_identity(
+        self, organization_id: UUID
+    ) -> OrganizationIdentity | None:
+        model = self._session.scalar(
+            select(OrganizationIdentityModel).where(
+                OrganizationIdentityModel.organization_id == str(organization_id)
+            )
+        )
+        if model is None:
+            return None
+        return OrganizationIdentity(
+            identity_id=UUID(model.identity_id),
+            organization_id=UUID(model.organization_id),
+            display_name=model.display_name,
+            purpose=model.purpose,
+            history=model.history,
+            interests=tuple(model.interests),
+            relationships=tuple(model.relationships),
+            territory_references=tuple(model.territory_references),
+            internal_conflicts=tuple(model.internal_conflicts),
+            status=OrganizationStatus(model.status),
+            provenance=self._provenance_contract(model),
+        )
+
+    def create_organization_governance(
+        self, governance: OrganizationGovernance
+    ) -> None:
+        self._session.add(
+            OrganizationGovernanceModel(
+                governance_id=str(governance.governance_id),
+                organization_id=str(governance.organization_id),
+                system=governance.system,
+                decision_rules=list(governance.decision_rules),
+                role_definitions=[
+                    item.model_dump(mode="json") for item in governance.role_definitions
+                ],
+                status=governance.status.value,
+                **self._provenance_values(governance.provenance),
+            )
+        )
+
+    def get_organization_governance(
+        self, organization_id: UUID
+    ) -> OrganizationGovernance | None:
+        model = self._session.scalar(
+            select(OrganizationGovernanceModel).where(
+                OrganizationGovernanceModel.organization_id == str(organization_id)
+            )
+        )
+        if model is None:
+            return None
+        return OrganizationGovernance(
+            governance_id=UUID(model.governance_id),
+            organization_id=UUID(model.organization_id),
+            system=model.system,
+            decision_rules=tuple(model.decision_rules),
+            role_definitions=tuple(
+                OrganizationRole.model_validate(item) for item in model.role_definitions
+            ),
+            status=OrganizationStatus(model.status),
+            provenance=self._provenance_contract(model),
+        )
+
+    def create_organization_membership(
+        self, membership: OrganizationMembership
+    ) -> None:
+        self._session.add(
+            OrganizationMembershipModel(
+                membership_id=str(membership.membership_id),
+                organization_id=str(membership.organization_id),
+                character_id=str(membership.character_id),
+                formal_roles=list(membership.formal_roles),
+                informal_roles=list(membership.informal_roles),
+                effective_influence=list(membership.effective_influence),
+                status=membership.status.value,
+                **self._provenance_values(membership.provenance),
+            )
+        )
+
+    def get_organization_membership(
+        self, organization_id: UUID, character_id: UUID
+    ) -> OrganizationMembership | None:
+        model = self._session.scalar(
+            select(OrganizationMembershipModel).where(
+                OrganizationMembershipModel.organization_id == str(organization_id),
+                OrganizationMembershipModel.character_id == str(character_id),
+            )
+        )
+        return self._organization_membership_contract(model) if model else None
+
+    def list_organization_memberships(
+        self, organization_id: UUID
+    ) -> tuple[OrganizationMembership, ...]:
+        models = self._session.scalars(
+            select(OrganizationMembershipModel).where(
+                OrganizationMembershipModel.organization_id == str(organization_id)
+            )
+        ).all()
+        return tuple(self._organization_membership_contract(item) for item in models)
+
+    def create_organization_authority_grant(
+        self, grant: OrganizationAuthorityGrant
+    ) -> None:
+        self._session.add(
+            OrganizationAuthorityGrantModel(
+                grant_id=str(grant.grant_id),
+                organization_id=str(grant.organization_id),
+                character_id=str(grant.character_id),
+                role_code=grant.role_code,
+                permission_codes=list(grant.permission_codes),
+                formal=grant.formal,
+                basis=grant.basis,
+                status=grant.status.value,
+                **self._provenance_values(grant.provenance),
+            )
+        )
+
+    def list_organization_authority_grants(
+        self, organization_id: UUID, character_id: UUID
+    ) -> tuple[OrganizationAuthorityGrant, ...]:
+        models = self._session.scalars(
+            select(OrganizationAuthorityGrantModel).where(
+                OrganizationAuthorityGrantModel.organization_id
+                == str(organization_id),
+                OrganizationAuthorityGrantModel.character_id == str(character_id),
+                OrganizationAuthorityGrantModel.status
+                == OrganizationStatus.ACTIVE.value,
+            )
+        ).all()
+        return tuple(
+            OrganizationAuthorityGrant(
+                grant_id=UUID(item.grant_id),
+                organization_id=UUID(item.organization_id),
+                character_id=UUID(item.character_id),
+                role_code=item.role_code,
+                permission_codes=tuple(item.permission_codes),
+                formal=item.formal,
+                basis=item.basis,
+                status=OrganizationStatus(item.status),
+                provenance=self._provenance_contract(item),
+            )
+            for item in models
+        )
+
+    def create_organization_motive(self, motive: OrganizationMotive) -> None:
+        self._session.add(
+            OrganizationMotiveModel(
+                motive_id=str(motive.motive_id),
+                organization_id=str(motive.organization_id),
+                description=motive.description,
+                internal_supporters=list(motive.internal_supporters),
+                internal_opposition=list(motive.internal_opposition),
+                status=motive.status.value,
+                **self._provenance_values(motive.provenance),
+            )
+        )
+
+    def get_organization_motive(
+        self, motive_id: UUID
+    ) -> OrganizationMotive | None:
+        model = self._session.get(OrganizationMotiveModel, str(motive_id))
+        if model is None:
+            return None
+        return OrganizationMotive(
+            motive_id=UUID(model.motive_id),
+            organization_id=UUID(model.organization_id),
+            description=model.description,
+            internal_supporters=tuple(model.internal_supporters),
+            internal_opposition=tuple(model.internal_opposition),
+            status=OrganizationStatus(model.status),
+            provenance=self._provenance_contract(model),
+        )
+
+    def create_organization_goal(self, goal: OrganizationGoal) -> None:
+        self._session.add(
+            OrganizationGoalModel(
+                goal_id=str(goal.goal_id),
+                organization_id=str(goal.organization_id),
+                motive_id=str(goal.motive_id) if goal.motive_id else None,
+                parent_goal_id=(
+                    str(goal.parent_goal_id) if goal.parent_goal_id else None
+                ),
+                desired_outcome=goal.desired_outcome,
+                status=goal.status.value,
+                **self._provenance_values(goal.provenance),
+            )
+        )
+
+    def get_organization_goal(self, goal_id: UUID) -> OrganizationGoal | None:
+        model = self._session.get(OrganizationGoalModel, str(goal_id))
+        if model is None:
+            return None
+        return OrganizationGoal(
+            goal_id=UUID(model.goal_id),
+            organization_id=UUID(model.organization_id),
+            motive_id=UUID(model.motive_id) if model.motive_id else None,
+            parent_goal_id=(
+                UUID(model.parent_goal_id) if model.parent_goal_id else None
+            ),
+            desired_outcome=model.desired_outcome,
+            status=GoalStatus(model.status),
+            provenance=self._provenance_contract(model),
+        )
+
+    def create_organization_plan(self, plan: OrganizationPlan) -> None:
+        self._session.add(
+            OrganizationPlanModel(
+                plan_id=str(plan.plan_id),
+                organization_id=str(plan.organization_id),
+                goal_id=str(plan.goal_id),
+                name=plan.name,
+                status=plan.status.value,
+                **self._provenance_values(plan.provenance),
+            )
+        )
+
+    def get_organization_plan(self, plan_id: UUID) -> OrganizationPlan | None:
+        model = self._session.get(OrganizationPlanModel, str(plan_id))
+        if model is None:
+            return None
+        return OrganizationPlan(
+            plan_id=UUID(model.plan_id),
+            organization_id=UUID(model.organization_id),
+            goal_id=UUID(model.goal_id),
+            name=model.name,
+            status=PlanStatus(model.status),
+            provenance=self._provenance_contract(model),
+        )
+
+    def create_organization_plan_step(self, step: OrganizationPlanStep) -> None:
+        self._session.add(
+            OrganizationPlanStepModel(
+                step_id=str(step.step_id),
+                plan_id=str(step.plan_id),
+                sequence=step.sequence,
+                action_intent=step.action_intent,
+                required_capabilities=list(step.required_capabilities),
+                required_resources=list(step.required_resources),
+                required_knowledge_fact_keys=list(
+                    step.required_knowledge_fact_keys
+                ),
+                resource_effects=[
+                    effect.model_dump(mode="json") for effect in step.resource_effects
+                ],
+                responsible_character_id=(
+                    str(step.responsible_character_id)
+                    if step.responsible_character_id
+                    else None
+                ),
+                required_permission_codes=list(step.required_permission_codes),
+                resolution_reason=step.resolution_reason,
+                status=step.status.value,
+                **self._provenance_values(step.provenance),
+            )
+        )
+
+    def get_organization_plan_step(
+        self, step_id: UUID
+    ) -> OrganizationPlanStep | None:
+        model = self._session.get(OrganizationPlanStepModel, str(step_id))
+        return self._organization_plan_step_contract(model) if model else None
+
+    def mark_organization_plan_step_scheduled(self, step_id: UUID) -> None:
+        model = self._session.get(OrganizationPlanStepModel, str(step_id))
+        if model is None:
+            raise KeyError(f"Unknown organization plan step {step_id}")
+        if model.status != PlanStepStatus.PENDING.value:
+            raise ValueError("Only pending organization plan steps can be scheduled")
+        model.status = PlanStepStatus.SCHEDULED.value
+
+    def mark_organization_plan_step_completed(self, step_id: UUID) -> None:
+        model = self._session.get(OrganizationPlanStepModel, str(step_id))
+        if model is None:
+            raise KeyError(f"Unknown organization plan step {step_id}")
+        if model.status != PlanStepStatus.SCHEDULED.value:
+            raise ValueError("Only scheduled organization plan steps can be completed")
+        model.status = PlanStepStatus.COMPLETED.value
+
+    def mark_organization_plan_step_failed(self, step_id: UUID, reason: str) -> None:
+        model = self._session.get(OrganizationPlanStepModel, str(step_id))
+        if model is None:
+            raise KeyError(f"Unknown organization plan step {step_id}")
+        if model.status != PlanStepStatus.SCHEDULED.value:
+            raise ValueError("Only scheduled organization plan steps can fail")
+        model.status = PlanStepStatus.FAILED.value
+        model.resolution_reason = reason
+
+    def create_organization_decision(
+        self,
+        proposal: OrganizationDecisionProposal,
+        *,
+        context: OrganizationDecisionContext,
+    ) -> None:
+        self._session.add(
+            OrganizationDecisionProposalModel(
+                proposal_id=str(proposal.proposal_id),
+                request_id=str(proposal.request_id),
+                organization_id=str(proposal.organization_id),
+                responsible_character_id=(
+                    str(proposal.responsible_character_id)
+                    if proposal.responsible_character_id
+                    else None
+                ),
+                reaction=proposal.reaction,
+                decision_type=proposal.decision_type.value,
+                target_plan_step_id=(
+                    str(proposal.target_plan_step_id)
+                    if proposal.target_plan_step_id
+                    else None
+                ),
+                rationale=proposal.rationale,
+                required_resources=list(proposal.required_resources),
+                confidence=proposal.confidence,
+                validation_requirements=list(proposal.validation_requirements),
+                status=proposal.status.value,
+                rejection_reason=proposal.rejection_reason,
+                context_hash=proposal.context_hash,
+                context=context.model_dump(mode="json"),
+                application_result=proposal.application_result,
+                **self._provenance_values(proposal.provenance),
+            )
+        )
+
+    def get_organization_decision(
+        self, proposal_id: UUID
+    ) -> OrganizationDecisionProposal | None:
+        model = self._session.get(
+            OrganizationDecisionProposalModel, str(proposal_id)
+        )
+        return self._organization_decision_contract(model) if model else None
+
+    def get_organization_decision_by_request(
+        self, request_id: UUID
+    ) -> OrganizationDecisionProposal | None:
+        model = self._session.scalar(
+            select(OrganizationDecisionProposalModel).where(
+                OrganizationDecisionProposalModel.request_id == str(request_id)
+            )
+        )
+        return self._organization_decision_contract(model) if model else None
+
+    def get_organization_decision_context(
+        self, proposal_id: UUID
+    ) -> OrganizationDecisionContext | None:
+        model = self._session.get(
+            OrganizationDecisionProposalModel, str(proposal_id)
+        )
+        return OrganizationDecisionContext.model_validate(model.context) if model else None
+
+    def save_organization_decision_application(
+        self, proposal: OrganizationDecisionProposal
+    ) -> None:
+        model = self._session.get(
+            OrganizationDecisionProposalModel, str(proposal.proposal_id)
+        )
+        if model is None:
+            raise KeyError(f"Unknown organization proposal {proposal.proposal_id}")
+        model.application_result = proposal.application_result
+        model.version = proposal.provenance.version
+        model.updated_at = proposal.provenance.updated_at
+
     def _scheduled_model(self, event_id: UUID) -> ScheduledEventModel:
         model = self._session.get(ScheduledEventModel, str(event_id))
         if model is None:
@@ -1236,6 +1932,81 @@ class SqlAlchemySimulationRepository:
             ),
             resolution_reason=model.resolution_reason,
             status=PlanStepStatus(model.status),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _organization_membership_contract(
+        model: OrganizationMembershipModel,
+    ) -> OrganizationMembership:
+        return OrganizationMembership(
+            membership_id=UUID(model.membership_id),
+            organization_id=UUID(model.organization_id),
+            character_id=UUID(model.character_id),
+            formal_roles=tuple(model.formal_roles),
+            informal_roles=tuple(model.informal_roles),
+            effective_influence=tuple(model.effective_influence),
+            status=MembershipStatus(model.status),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _organization_plan_step_contract(
+        model: OrganizationPlanStepModel,
+    ) -> OrganizationPlanStep:
+        return OrganizationPlanStep(
+            step_id=UUID(model.step_id),
+            plan_id=UUID(model.plan_id),
+            sequence=model.sequence,
+            action_intent=model.action_intent,
+            required_capabilities=tuple(model.required_capabilities),
+            required_resources=tuple(model.required_resources),
+            required_knowledge_fact_keys=tuple(
+                model.required_knowledge_fact_keys
+            ),
+            resource_effects=tuple(
+                ResourceEffect.model_validate(item)
+                for item in model.resource_effects
+            ),
+            responsible_character_id=(
+                UUID(model.responsible_character_id)
+                if model.responsible_character_id
+                else None
+            ),
+            required_permission_codes=tuple(model.required_permission_codes),
+            resolution_reason=model.resolution_reason,
+            status=PlanStepStatus(model.status),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _organization_decision_contract(
+        model: OrganizationDecisionProposalModel,
+    ) -> OrganizationDecisionProposal:
+        return OrganizationDecisionProposal(
+            proposal_id=UUID(model.proposal_id),
+            request_id=UUID(model.request_id),
+            organization_id=UUID(model.organization_id),
+            responsible_character_id=(
+                UUID(model.responsible_character_id)
+                if model.responsible_character_id
+                else None
+            ),
+            reaction=model.reaction,
+            decision_type=OrganizationDecisionType(model.decision_type),
+            target_plan_step_id=(
+                UUID(model.target_plan_step_id)
+                if model.target_plan_step_id
+                else None
+            ),
+            rationale=model.rationale,
+            required_resources=tuple(model.required_resources),
+            confidence=model.confidence,
+            validation_requirements=tuple(model.validation_requirements),
+            status=OrganizationDecisionProposalStatus(model.status),
+            rejection_reason=model.rejection_reason,
+            context_hash=model.context_hash,
+            application_result=model.application_result,
             provenance=SqlAlchemySimulationRepository._provenance_contract(model),
         )
 
@@ -1327,6 +2098,1625 @@ class SqlAlchemySimulationRepository:
             alterations=tuple(model.alterations),
             sender_intent=model.sender_intent,
             reach=model.reach,
+            source_language_id=(
+                UUID(model.source_language_id) if model.source_language_id else None
+            ),
+            target_language_id=(
+                UUID(model.target_language_id) if model.target_language_id else None
+            ),
+            source_dialect_id=(
+                UUID(model.source_dialect_id) if model.source_dialect_id else None
+            ),
+            target_dialect_id=(
+                UUID(model.target_dialect_id) if model.target_dialect_id else None
+            ),
+            writing_system_id=(
+                UUID(model.writing_system_id) if model.writing_system_id else None
+            ),
+            presentation_language=model.presentation_language,
+            translation_semantics=tuple(model.translation_semantics or ()),
+            imperfect_translation=model.imperfect_translation,
+        )
+
+    def create_location(self, location: Location) -> None:
+        self._session.add(
+            LocationModel(
+                location_id=str(location.location_id),
+                world_id=str(location.world_id),
+                name=location.name,
+                location_type=location.location_type.value,
+                parent_location_id=(
+                    str(location.parent_location_id)
+                    if location.parent_location_id is not None
+                    else None
+                ),
+                terrain=list(location.terrain),
+                climate=list(location.climate),
+                hydrology=list(location.hydrology),
+                flora_fauna=list(location.flora_fauna),
+                natural_resources=list(location.natural_resources),
+                population_density=location.population_density,
+                strategic_tags=list(location.strategic_tags),
+                risk_tags=list(location.risk_tags),
+                barrier_tags=list(location.barrier_tags),
+                **self._provenance_values(location.provenance),
+            )
+        )
+
+    def get_location(self, location_id: UUID) -> Location | None:
+        model = self._session.get(LocationModel, str(location_id))
+        return self._location_contract(model) if model else None
+
+    def list_locations(self, world_id: UUID) -> tuple[Location, ...]:
+        models = self._session.scalars(
+            select(LocationModel)
+            .where(LocationModel.world_id == str(world_id))
+            .order_by(LocationModel.location_id)
+        ).all()
+        return tuple(self._location_contract(model) for model in models)
+
+    def list_child_locations(self, parent_location_id: UUID) -> tuple[Location, ...]:
+        models = self._session.scalars(
+            select(LocationModel)
+            .where(LocationModel.parent_location_id == str(parent_location_id))
+            .order_by(LocationModel.location_id)
+        ).all()
+        return tuple(self._location_contract(model) for model in models)
+
+    def create_territory_claim(self, claim: TerritoryClaim) -> None:
+        self._session.add(
+            TerritoryClaimModel(
+                claim_id=str(claim.claim_id),
+                location_id=str(claim.location_id),
+                semantics=claim.semantics.value,
+                owner_actor_type=(
+                    claim.owner.actor_type.value if claim.owner is not None else None
+                ),
+                owner_actor_id=(
+                    str(claim.owner.actor_id) if claim.owner is not None else None
+                ),
+                controller_actor_type=(
+                    claim.controller.actor_type.value
+                    if claim.controller is not None
+                    else None
+                ),
+                controller_actor_id=(
+                    str(claim.controller.actor_id)
+                    if claim.controller is not None
+                    else None
+                ),
+                status=claim.status.value,
+                basis=claim.basis,
+                **self._provenance_values(claim.provenance),
+            )
+        )
+
+    def list_territory_claims(
+        self, location_id: UUID
+    ) -> tuple[TerritoryClaim, ...]:
+        models = self._session.scalars(
+            select(TerritoryClaimModel).where(
+                TerritoryClaimModel.location_id == str(location_id)
+            )
+        ).all()
+        return tuple(self._territory_claim_contract(model) for model in models)
+
+    def create_infrastructure_node(self, node: InfrastructureNode) -> None:
+        self._session.add(
+            InfrastructureNodeModel(
+                node_id=str(node.node_id),
+                world_id=str(node.world_id),
+                location_id=str(node.location_id),
+                name=node.name,
+                node_type=node.node_type,
+                availability=node.availability,
+                capacity=node.capacity,
+                safety_tags=list(node.safety_tags),
+                risk_tags=list(node.risk_tags),
+                **self._provenance_values(node.provenance),
+            )
+        )
+
+    def create_infrastructure_facility(
+        self, facility: InfrastructureFacility
+    ) -> None:
+        self._session.add(
+            InfrastructureFacilityModel(
+                facility_id=str(facility.facility_id),
+                node_id=str(facility.node_id),
+                location_id=str(facility.location_id),
+                facility_type=facility.facility_type,
+                name=facility.name,
+                availability=facility.availability,
+                capacity=facility.capacity,
+                resource_consumption=list(facility.resource_consumption),
+                safety_tags=list(facility.safety_tags),
+                risk_tags=list(facility.risk_tags),
+                **self._provenance_values(facility.provenance),
+            )
+        )
+
+    def get_infrastructure_node(
+        self, node_id: UUID
+    ) -> InfrastructureNode | None:
+        model = self._session.get(InfrastructureNodeModel, str(node_id))
+        return self._infrastructure_node_contract(model) if model else None
+
+    def list_infrastructure_nodes(
+        self, location_id: UUID
+    ) -> tuple[InfrastructureNode, ...]:
+        models = self._session.scalars(
+            select(InfrastructureNodeModel).where(
+                InfrastructureNodeModel.location_id == str(location_id)
+            )
+        ).all()
+        return tuple(self._infrastructure_node_contract(model) for model in models)
+
+    def get_infrastructure_facility(
+        self, facility_id: UUID
+    ) -> InfrastructureFacility | None:
+        model = self._session.get(InfrastructureFacilityModel, str(facility_id))
+        return self._infrastructure_facility_contract(model) if model else None
+
+    def list_infrastructure_facilities(
+        self, node_id: UUID
+    ) -> tuple[InfrastructureFacility, ...]:
+        models = self._session.scalars(
+            select(InfrastructureFacilityModel).where(
+                InfrastructureFacilityModel.node_id == str(node_id)
+            )
+        ).all()
+        return tuple(
+            self._infrastructure_facility_contract(model) for model in models
+        )
+
+    def create_transport_route(self, route: TransportRoute) -> None:
+        self._session.add(
+            TransportRouteModel(
+                route_id=str(route.route_id),
+                world_id=str(route.world_id),
+                name=route.name,
+                start_location_id=str(route.start_location_id),
+                end_location_id=str(route.end_location_id),
+                modes=[mode.value for mode in route.modes],
+                availability=route.availability,
+                **self._provenance_values(route.provenance),
+            )
+        )
+
+    def get_transport_route(self, route_id: UUID) -> TransportRoute | None:
+        model = self._session.get(TransportRouteModel, str(route_id))
+        return self._transport_route_contract(model) if model else None
+
+    def create_transport_route_segment(
+        self, segment: TransportRouteSegment
+    ) -> None:
+        self._session.add(
+            TransportRouteSegmentModel(
+                segment_id=str(segment.segment_id),
+                route_id=str(segment.route_id),
+                sequence=segment.sequence,
+                start_location_id=str(segment.start_location_id),
+                end_location_id=str(segment.end_location_id),
+                physical_distance=segment.physical_distance,
+                distance_unit=segment.distance_unit,
+                base_duration_microseconds=(
+                    segment.base_duration // timedelta(microseconds=1)
+                ),
+                mode=segment.mode.value,
+                costs=[item.model_dump(mode="json") for item in segment.costs],
+                capacity=segment.capacity,
+                availability=segment.availability,
+                resource_consumption=[
+                    item.model_dump(mode="json")
+                    for item in segment.resource_consumption
+                ],
+                safety_tags=list(segment.safety_tags),
+                risk_tags=list(segment.risk_tags),
+                **self._provenance_values(segment.provenance),
+            )
+        )
+
+    def list_transport_route_segments(
+        self, route_id: UUID
+    ) -> tuple[TransportRouteSegment, ...]:
+        models = self._session.scalars(
+            select(TransportRouteSegmentModel)
+            .where(TransportRouteSegmentModel.route_id == str(route_id))
+            .order_by(TransportRouteSegmentModel.sequence)
+        ).all()
+        return tuple(self._route_segment_contract(model) for model in models)
+
+    def create_journey(self, journey: Journey) -> None:
+        self._session.add(
+            JourneyModel(
+                journey_id=str(journey.journey_id),
+                world_id=str(journey.world_id),
+                timeline_id=str(journey.timeline_id),
+                participants=[
+                    {
+                        "actor_type": item.actor.actor_type.value,
+                        "actor_id": str(item.actor.actor_id),
+                        "participant_type": item.participant_type.value,
+                    }
+                    for item in journey.participants
+                ],
+                start_location_id=str(journey.start_location_id),
+                end_location_id=str(journey.end_location_id),
+                route_id=str(journey.route_id),
+                segment_ids=[str(item) for item in journey.segment_ids],
+                resource_owner=(
+                    {
+                        "actor_type": journey.resource_owner.actor_type.value,
+                        "actor_id": str(journey.resource_owner.actor_id),
+                    }
+                    if journey.resource_owner is not None
+                    else None
+                ),
+                costs=[item.model_dump(mode="json") for item in journey.costs],
+                resource_consumption=[
+                    item.model_dump(mode="json")
+                    for item in journey.resource_consumption
+                ],
+                started_at=journey.started_at,
+                expected_arrival_at=journey.expected_arrival_at,
+                arrived_at=journey.arrived_at,
+                status=journey.status.value,
+                scheduled_event_id=str(journey.scheduled_event_id),
+                **self._provenance_values(journey.provenance),
+            )
+        )
+
+    def get_journey(self, journey_id: UUID) -> Journey | None:
+        model = self._session.get(JourneyModel, str(journey_id))
+        return self._journey_contract(model) if model else None
+
+    def get_actor_position(self, actor: ActorReference) -> ActorPosition | None:
+        model = self._session.get(
+            ActorPositionModel,
+            (actor.actor_type.value, str(actor.actor_id)),
+        )
+        return self._actor_position_contract(model) if model else None
+
+    def save_actor_position(self, position: ActorPosition) -> None:
+        model = self._session.get(
+            ActorPositionModel,
+            (position.actor.actor_type.value, str(position.actor.actor_id)),
+        )
+        if model is None:
+            self._session.add(
+                ActorPositionModel(
+                    actor_type=position.actor.actor_type.value,
+                    actor_id=str(position.actor.actor_id),
+                    location_id=str(position.location_id),
+                    journey_id=(
+                        str(position.journey_id)
+                        if position.journey_id is not None
+                        else None
+                    ),
+                    version=position.version,
+                )
+            )
+            return
+        model.location_id = str(position.location_id)
+        model.journey_id = (
+            str(position.journey_id) if position.journey_id is not None else None
+        )
+        model.version = position.version
+
+    def mark_journey_in_transit(self, journey_id: UUID) -> None:
+        model = self._session.get(JourneyModel, str(journey_id))
+        if model is None:
+            raise KeyError(f"Unknown journey {journey_id}")
+        if JourneyStatus(model.status) != JourneyStatus.SCHEDULED:
+            raise ValueError("Only scheduled journeys can start")
+        model.status = JourneyStatus.IN_TRANSIT.value
+
+    def mark_journey_arrived(self, journey_id: UUID, arrived_at: datetime) -> None:
+        model = self._session.get(JourneyModel, str(journey_id))
+        if model is None:
+            raise KeyError(f"Unknown journey {journey_id}")
+        if JourneyStatus(model.status) != JourneyStatus.IN_TRANSIT:
+            raise ValueError("Only in-transit journeys can arrive")
+        model.status = JourneyStatus.ARRIVED.value
+        model.arrived_at = arrived_at
+
+    def create_species(self, species: Species) -> None:
+        self._session.add(
+            SpeciesModel(
+                species_id=str(species.species_id),
+                world_id=str(species.world_id),
+                name=species.name,
+                organism_kind=species.organism_kind.value,
+                anatomy=species.anatomy,
+                physiology=species.physiology,
+                reproduction_model=species.reproduction_model,
+                nutrition=species.nutrition,
+                habitat=list(species.habitat),
+                senses=list(species.senses),
+                adaptations=list(species.adaptations),
+                lifecycle_stages=[
+                    stage.model_dump(mode="json") for stage in species.lifecycle_stages
+                ],
+                resource_links=list(species.resource_links),
+                **self._provenance_values(species.provenance),
+            )
+        )
+
+    def get_species(self, species_id: UUID) -> Species | None:
+        model = self._session.get(SpeciesModel, str(species_id))
+        return self._species_contract(model) if model else None
+
+    def create_habitat(self, habitat: Habitat) -> None:
+        self._session.add(
+            HabitatModel(
+                habitat_id=str(habitat.habitat_id),
+                world_id=str(habitat.world_id),
+                location_id=str(habitat.location_id),
+                name=habitat.name,
+                habitat_type=habitat.habitat_type,
+                habitability=habitat.habitability,
+                species_ids=[str(item) for item in habitat.species_ids],
+                resources=list(habitat.resources),
+                resource_links=list(habitat.resource_links),
+                characteristics=habitat.characteristics,
+                **self._provenance_values(habitat.provenance),
+            )
+        )
+
+    def get_habitat(self, habitat_id: UUID) -> Habitat | None:
+        model = self._session.get(HabitatModel, str(habitat_id))
+        return self._habitat_contract(model) if model else None
+
+    def list_habitats(self, location_id: UUID) -> tuple[Habitat, ...]:
+        models = self._session.scalars(
+            select(HabitatModel)
+            .where(HabitatModel.location_id == str(location_id))
+            .order_by(HabitatModel.habitat_id)
+        ).all()
+        return tuple(self._habitat_contract(model) for model in models)
+
+    def create_population(self, population: Population) -> None:
+        self._session.add(
+            PopulationModel(
+                population_id=str(population.population_id),
+                world_id=str(population.world_id),
+                species_id=str(population.species_id),
+                location_id=str(population.location_id),
+                name=population.name,
+                cohorts=[
+                    cohort.model_dump(mode="json") for cohort in population.cohorts
+                ],
+                aggregate_by_default=population.aggregate_by_default,
+                resource_links=list(population.resource_links),
+                **self._provenance_values(population.provenance),
+            )
+        )
+
+    def get_population(self, population_id: UUID) -> Population | None:
+        model = self._session.get(PopulationModel, str(population_id))
+        return self._population_contract(model) if model else None
+
+    def list_populations(
+        self, world_id: UUID, *, location_id: UUID | None = None
+    ) -> tuple[Population, ...]:
+        statement = select(PopulationModel).where(
+            PopulationModel.world_id == str(world_id)
+        )
+        if location_id is not None:
+            statement = statement.where(
+                PopulationModel.location_id == str(location_id)
+            )
+        models = self._session.scalars(
+            statement.order_by(PopulationModel.population_id)
+        ).all()
+        return tuple(self._population_contract(model) for model in models)
+
+    def save_population(
+        self, population: Population, expected_version: int | None = None
+    ) -> None:
+        model = self._session.get(PopulationModel, str(population.population_id))
+        if model is None:
+            raise KeyError(f"Unknown population {population.population_id}")
+        self._check_expected_version(model, expected_version)
+        model.cohorts = [
+            cohort.model_dump(mode="json") for cohort in population.cohorts
+        ]
+        model.aggregate_by_default = population.aggregate_by_default
+        model.resource_links = list(population.resource_links)
+        self._save_provenance(model, population.provenance)
+
+    def create_ecological_process(self, process: EcologicalProcess) -> None:
+        self._session.add(
+            EcologicalProcessModel(
+                process_id=str(process.process_id),
+                world_id=str(process.world_id),
+                location_id=str(process.location_id),
+                process_type=process.process_type,
+                measures={
+                    key: str(value) for key, value in process.measures.items()
+                },
+                population_links=[str(item) for item in process.population_links],
+                resource_links=list(process.resource_links),
+                status=process.status,
+                **self._provenance_values(process.provenance),
+            )
+        )
+
+    def get_ecological_process(
+        self, process_id: UUID
+    ) -> EcologicalProcess | None:
+        model = self._session.get(EcologicalProcessModel, str(process_id))
+        return self._ecological_process_contract(model) if model else None
+
+    def save_ecological_process(
+        self, process: EcologicalProcess, expected_version: int | None = None
+    ) -> None:
+        model = self._session.get(EcologicalProcessModel, str(process.process_id))
+        if model is None:
+            raise KeyError(f"Unknown ecological process {process.process_id}")
+        self._check_expected_version(model, expected_version)
+        model.measures = {key: str(value) for key, value in process.measures.items()}
+        model.population_links = [str(item) for item in process.population_links]
+        model.resource_links = list(process.resource_links)
+        model.status = process.status
+        self._save_provenance(model, process.provenance)
+
+    def create_health_state(self, state: HealthState) -> None:
+        self._session.add(
+            HealthStateModel(
+                state_id=str(state.state_id),
+                character_id=str(state.character_id),
+                species_id=str(state.species_id) if state.species_id else None,
+                physical_integrity=state.physical_integrity,
+                consciousness=state.consciousness,
+                ability_to_act=state.ability_to_act,
+                ability_to_fight=state.ability_to_fight,
+                conditions=[
+                    condition.model_dump(mode="json") for condition in state.conditions
+                ],
+                **self._provenance_values(state.provenance),
+            )
+        )
+
+    def get_health_state(self, character_id: UUID) -> HealthState | None:
+        model = self._session.scalar(
+            select(HealthStateModel).where(
+                HealthStateModel.character_id == str(character_id)
+            )
+        )
+        return self._health_state_contract(model) if model else None
+
+    def save_health_state(
+        self, state: HealthState, expected_version: int | None = None
+    ) -> None:
+        model = self._session.get(HealthStateModel, str(state.state_id))
+        if model is None:
+            raise KeyError(f"Unknown health state {state.state_id}")
+        self._check_expected_version(model, expected_version)
+        model.physical_integrity = state.physical_integrity
+        model.consciousness = state.consciousness
+        model.ability_to_act = state.ability_to_act
+        model.ability_to_fight = state.ability_to_fight
+        model.conditions = [
+            condition.model_dump(mode="json") for condition in state.conditions
+        ]
+        self._save_provenance(model, state.provenance)
+
+    def create_knowledge_artifact(self, artifact: KnowledgeArtifact) -> None:
+        self._session.add(
+            KnowledgeArtifactModel(
+                artifact_id=str(artifact.artifact_id),
+                world_id=str(artifact.world_id),
+                state=artifact.state.value,
+                payload=artifact.model_dump(mode="json"),
+            )
+        )
+
+    def create_culture_definition(self, culture: CultureDefinition) -> None:
+        self._session.add(
+            CultureDefinitionModel(
+                culture_id=str(culture.culture_id),
+                world_id=str(culture.world_id),
+                payload=culture.model_dump(mode="json"),
+            )
+        )
+
+    def get_culture_definition(
+        self, culture_id: UUID
+    ) -> CultureDefinition | None:
+        model = self._session.get(CultureDefinitionModel, str(culture_id))
+        return CultureDefinition.model_validate(model.payload) if model else None
+
+    def create_social_group(self, group: SocialGroup) -> None:
+        self._session.add(
+            SocialGroupModel(
+                group_id=str(group.group_id),
+                world_id=str(group.world_id),
+                semantic_category=group.semantic_category,
+                payload=group.model_dump(mode="json"),
+            )
+        )
+
+    def get_social_group(self, group_id: UUID) -> SocialGroup | None:
+        model = self._session.get(SocialGroupModel, str(group_id))
+        return SocialGroup.model_validate(model.payload) if model else None
+
+    def create_individual_cultural_affiliation(
+        self, affiliation: IndividualCulturalAffiliation
+    ) -> None:
+        self._session.add(
+            IndividualCulturalAffiliationModel(
+                affiliation_id=str(affiliation.affiliation_id),
+                character_id=str(affiliation.character_id),
+                target_type=affiliation.target_type.value,
+                target_id=str(affiliation.target_id),
+                visibility=affiliation.visibility.value,
+                effective_from=affiliation.effective_from,
+                effective_until=affiliation.effective_until,
+                payload=affiliation.model_dump(mode="json"),
+            )
+        )
+
+    def list_individual_cultural_affiliations(
+        self, character_id: UUID
+    ) -> tuple[IndividualCulturalAffiliation, ...]:
+        models = self._session.scalars(
+            select(IndividualCulturalAffiliationModel)
+            .where(
+                IndividualCulturalAffiliationModel.character_id
+                == str(character_id)
+            )
+            .order_by(
+                IndividualCulturalAffiliationModel.effective_from,
+                IndividualCulturalAffiliationModel.affiliation_id,
+            )
+        ).all()
+        return tuple(
+            IndividualCulturalAffiliation.model_validate(model.payload)
+            for model in models
+        )
+
+    def create_cultural_change_record(self, record: CulturalChangeRecord) -> None:
+        self._session.add(
+            CulturalChangeRecordModel(
+                record_id=str(record.record_id),
+                world_id=str(record.world_id),
+                target_type=record.target_type.value,
+                target_id=str(record.target_id),
+                source_event_id=str(record.source_event_id),
+                occurred_at=record.occurred_at,
+                cause_tags=[tag.value for tag in record.cause_tags],
+                payload=record.model_dump(mode="json"),
+            )
+        )
+
+    def get_cultural_change_record(
+        self, record_id: UUID
+    ) -> CulturalChangeRecord | None:
+        model = self._session.get(CulturalChangeRecordModel, str(record_id))
+        return CulturalChangeRecord.model_validate(model.payload) if model else None
+
+    def list_cultural_change_records(
+        self,
+        target_type: CulturalAffiliationTargetType,
+        target_id: UUID,
+    ) -> tuple[CulturalChangeRecord, ...]:
+        models = self._session.scalars(
+            select(CulturalChangeRecordModel)
+            .where(
+                CulturalChangeRecordModel.target_type == target_type.value,
+                CulturalChangeRecordModel.target_id == str(target_id),
+            )
+            .order_by(
+                CulturalChangeRecordModel.occurred_at,
+                CulturalChangeRecordModel.record_id,
+            )
+        ).all()
+        return tuple(
+            CulturalChangeRecord.model_validate(model.payload) for model in models
+        )
+
+    def get_knowledge_artifact(
+        self, artifact_id: UUID
+    ) -> KnowledgeArtifact | None:
+        model = self._session.get(KnowledgeArtifactModel, str(artifact_id))
+        return KnowledgeArtifact.model_validate(model.payload) if model else None
+
+    def save_knowledge_artifact(
+        self, artifact: KnowledgeArtifact, expected_version: int | None = None
+    ) -> None:
+        model = self._session.get(KnowledgeArtifactModel, str(artifact.artifact_id))
+        if model is None:
+            raise KeyError(f"Unknown knowledge artifact {artifact.artifact_id}")
+        stored = KnowledgeArtifact.model_validate(model.payload)
+        if expected_version is not None and stored.provenance.version != expected_version:
+            raise StaleWorldStateError("Knowledge artifact changed during simulation")
+        model.state = artifact.state.value
+        model.payload = artifact.model_dump(mode="json")
+
+    def create_technology(self, technology: Technology) -> None:
+        self._session.add(
+            TechnologyModel(
+                technology_id=str(technology.technology_id),
+                world_id=str(technology.world_id),
+                state=technology.state.value,
+                payload=technology.model_dump(mode="json"),
+            )
+        )
+
+    def get_technology(self, technology_id: UUID) -> Technology | None:
+        model = self._session.get(TechnologyModel, str(technology_id))
+        return Technology.model_validate(model.payload) if model else None
+
+    def save_technology(
+        self, technology: Technology, expected_version: int | None = None
+    ) -> None:
+        model = self._session.get(TechnologyModel, str(technology.technology_id))
+        if model is None:
+            raise KeyError(f"Unknown technology {technology.technology_id}")
+        stored = Technology.model_validate(model.payload)
+        if expected_version is not None and stored.provenance.version != expected_version:
+            raise StaleWorldStateError("Technology changed during simulation")
+        model.state = technology.state.value
+        model.payload = technology.model_dump(mode="json")
+
+    def create_knowledge_lifecycle_record(
+        self, record: KnowledgeLifecycleRecord
+    ) -> None:
+        self._session.add(
+            KnowledgeLifecycleRecordModel(
+                record_id=str(record.record_id),
+                entity_id=str(record.entity_id),
+                actor_id=str(record.actor_id) if record.actor_id else None,
+                state=record.state.value,
+                payload=record.model_dump(mode="json"),
+            )
+        )
+
+    def create_language(self, language: Language) -> None:
+        self._session.add(
+            LanguageModel(
+                language_id=str(language.language_id),
+                world_id=str(language.world_id),
+                payload=language.model_dump(mode="json"),
+            )
+        )
+
+    def get_language(self, language_id: UUID) -> Language | None:
+        model = self._session.get(LanguageModel, str(language_id))
+        return Language.model_validate(model.payload) if model else None
+
+    def create_dialect(self, dialect: Dialect) -> None:
+        self._session.add(
+            DialectModel(
+                dialect_id=str(dialect.dialect_id),
+                language_id=str(dialect.language_id),
+                payload=dialect.model_dump(mode="json"),
+            )
+        )
+
+    def create_writing_system(self, writing_system: WritingSystem) -> None:
+        self._session.add(
+            WritingSystemModel(
+                writing_system_id=str(writing_system.writing_system_id),
+                world_id=str(writing_system.world_id),
+                payload=writing_system.model_dump(mode="json"),
+            )
+        )
+
+    def create_character_language_proficiency(
+        self, proficiency: CharacterLanguageProficiency
+    ) -> None:
+        self._session.add(
+            CharacterLanguageProficiencyModel(
+                proficiency_id=str(proficiency.proficiency_id),
+                character_id=str(proficiency.character_id),
+                language_id=str(proficiency.language_id),
+                payload=proficiency.model_dump(mode="json"),
+            )
+        )
+
+    def get_character_language_proficiency(
+        self, character_id: UUID, language_id: UUID
+    ) -> CharacterLanguageProficiency | None:
+        model = self._session.scalar(
+            select(CharacterLanguageProficiencyModel).where(
+                CharacterLanguageProficiencyModel.character_id == str(character_id),
+                CharacterLanguageProficiencyModel.language_id == str(language_id),
+            )
+        )
+        return (
+            CharacterLanguageProficiency.model_validate(model.payload)
+            if model
+            else None
+        )
+
+    def create_education_program(self, program: EducationProgram) -> None:
+        self._session.add(
+            EducationProgramModel(
+                program_id=str(program.program_id),
+                world_id=str(program.world_id),
+                organization_id=(
+                    str(program.organization_id) if program.organization_id else None
+                ),
+                payload=program.model_dump(mode="json"),
+            )
+        )
+
+    def get_education_program(self, program_id: UUID) -> EducationProgram | None:
+        model = self._session.get(EducationProgramModel, str(program_id))
+        return EducationProgram.model_validate(model.payload) if model else None
+
+    def create_education_enrollment(
+        self, enrollment: EducationEnrollment
+    ) -> None:
+        self._session.add(
+            EducationEnrollmentModel(
+                enrollment_id=str(enrollment.enrollment_id),
+                program_id=str(enrollment.program_id),
+                character_id=str(enrollment.character_id),
+                status=enrollment.status.value,
+                payload=enrollment.model_dump(mode="json"),
+            )
+        )
+
+    def get_education_enrollment(
+        self, enrollment_id: UUID
+    ) -> EducationEnrollment | None:
+        model = self._session.get(EducationEnrollmentModel, str(enrollment_id))
+        return EducationEnrollment.model_validate(model.payload) if model else None
+
+    def create_learning_opportunity(
+        self, opportunity: LearningOpportunity
+    ) -> None:
+        self._session.add(
+            LearningOpportunityModel(
+                opportunity_id=str(opportunity.opportunity_id),
+                program_id=(
+                    str(opportunity.program_id) if opportunity.program_id else None
+                ),
+                participant_character_id=str(opportunity.participant_character_id),
+                payload=opportunity.model_dump(mode="json"),
+            )
+        )
+
+    def get_learning_opportunity(
+        self, opportunity_id: UUID
+    ) -> LearningOpportunity | None:
+        model = self._session.get(LearningOpportunityModel, str(opportunity_id))
+        return LearningOpportunity.model_validate(model.payload) if model else None
+
+    def create_assessment_outcome(self, outcome: AssessmentOutcome) -> None:
+        self._session.add(
+            AssessmentOutcomeModel(
+                outcome_id=str(outcome.outcome_id),
+                enrollment_id=str(outcome.enrollment_id),
+                character_id=str(outcome.character_id),
+                source_event_id=str(outcome.source_event_id),
+                payload=outcome.model_dump(mode="json"),
+            )
+        )
+
+    def create_religion_tradition(
+        self, tradition: ReligionTradition
+    ) -> None:
+        self._session.add(
+            ReligionTraditionModel(
+                tradition_id=str(tradition.tradition_id),
+                world_id=str(tradition.world_id),
+                organization_id=(
+                    str(tradition.organization_id)
+                    if tradition.organization_id
+                    else None
+                ),
+                payload=tradition.model_dump(mode="json"),
+            )
+        )
+
+    def get_religion_tradition(
+        self, tradition_id: UUID
+    ) -> ReligionTradition | None:
+        model = self._session.get(ReligionTraditionModel, str(tradition_id))
+        return ReligionTradition.model_validate(model.payload) if model else None
+
+    def create_individual_belief(self, belief: IndividualBeliefRecord) -> None:
+        self._session.add(
+            IndividualBeliefRecordModel(
+                belief_id=str(belief.belief_id),
+                character_id=str(belief.character_id),
+                tradition_id=(
+                    str(belief.tradition_id) if belief.tradition_id else None
+                ),
+                payload=belief.model_dump(mode="json"),
+            )
+        )
+
+    def create_ritual_completion(self, completion: RitualCompletion) -> None:
+        self._session.add(
+            RitualCompletionModel(
+                completion_id=str(completion.completion_id),
+                tradition_id=str(completion.tradition_id),
+                actor_id=str(completion.actor_id),
+                source_event_id=str(completion.source_event_id),
+                payload=completion.model_dump(mode="json"),
+            )
+        )
+
+    def create_metaphysical_truth(self, truth: MetaphysicalTruth) -> None:
+        self._session.add(
+            MetaphysicalTruthModel(
+                truth_id=str(truth.truth_id),
+                world_id=str(truth.world_id),
+                disclosure_class=truth.disclosure_class,
+                payload=truth.model_dump(mode="json"),
+            )
+        )
+
+    def create_normative_system(self, system: NormativeSystem) -> None:
+        self._session.add(
+            NormativeSystemModel(
+                system_id=str(system.system_id),
+                world_id=str(system.world_id),
+                kind=system.kind.value,
+                payload=system.model_dump(mode="json"),
+            )
+        )
+
+    def get_normative_system(self, system_id: UUID) -> NormativeSystem | None:
+        model = self._session.get(NormativeSystemModel, str(system_id))
+        return NormativeSystem.model_validate(model.payload) if model else None
+
+    def create_normative_rule(self, rule: NormativeRule) -> None:
+        self._session.add(NormativeRuleModel(rule_id=str(rule.rule_id), system_id=str(rule.system_id), payload=rule.model_dump(mode="json")))
+
+    def get_normative_rule(self, rule_id: UUID) -> NormativeRule | None:
+        model = self._session.get(NormativeRuleModel, str(rule_id))
+        return NormativeRule.model_validate(model.payload) if model else None
+
+    def create_offense(self, offense: Offense) -> None:
+        self._session.add(OffenseModel(offense_id=str(offense.offense_id), system_id=str(offense.system_id), rule_id=str(offense.rule_id), payload=offense.model_dump(mode="json")))
+
+    def create_legal_case(self, case: LegalCase) -> None:
+        self._session.add(LegalCaseModel(case_id=str(case.case_id), world_id=str(case.world_id), system_id=str(case.system_id), status=case.status.value, payload=case.model_dump(mode="json")))
+
+    def get_legal_case(self, case_id: UUID) -> LegalCase | None:
+        model = self._session.get(LegalCaseModel, str(case_id))
+        return LegalCase.model_validate(model.payload) if model else None
+
+    def save_legal_case(self, case: LegalCase, expected_version: int) -> None:
+        model = self._session.get(LegalCaseModel, str(case.case_id))
+        model = self._save_json_versioned(model, case, expected_version, "Legal case")
+        model.status = case.status.value
+
+    def create_investigation(self, investigation: Investigation) -> None:
+        self._session.add(InvestigationModel(investigation_id=str(investigation.investigation_id), case_id=str(investigation.case_id), organization_id=str(investigation.responsible_organization_id), status=investigation.status.value, payload=investigation.model_dump(mode="json")))
+
+    def get_investigation(self, investigation_id: UUID) -> Investigation | None:
+        model = self._session.get(InvestigationModel, str(investigation_id))
+        return Investigation.model_validate(model.payload) if model else None
+
+    def save_investigation(self, investigation: Investigation, expected_version: int) -> None:
+        model = self._session.get(InvestigationModel, str(investigation.investigation_id))
+        model = self._save_json_versioned(model, investigation, expected_version, "Investigation")
+        model.status = investigation.status.value
+
+    def create_evidence(self, evidence: EvidenceRecord) -> None:
+        self._session.add(EvidenceRecordModel(evidence_id=str(evidence.evidence_id), investigation_id=str(evidence.investigation_id), case_id=str(evidence.case_id), visibility=evidence.visibility.value, payload=evidence.model_dump(mode="json")))
+
+    def list_visible_evidence(self, character_id: UUID, *, as_of: datetime) -> tuple[EvidenceRecord, ...]:
+        models = self._session.scalars(select(EvidenceRecordModel).order_by(EvidenceRecordModel.evidence_id)).all()
+        result: list[EvidenceRecord] = []
+        for model in models:
+            evidence = EvidenceRecord.model_validate(model.payload)
+            if evidence.acquired_at <= as_of and (
+                evidence.visibility.value == "public"
+                or character_id in evidence.permitted_character_ids
+            ):
+                result.append(evidence)
+        return tuple(result)
+
+    def create_legal_proceeding(self, proceeding: LegalProceeding) -> None:
+        self._session.add(LegalProceedingModel(proceeding_id=str(proceeding.proceeding_id), case_id=str(proceeding.case_id), status=proceeding.status.value, payload=proceeding.model_dump(mode="json")))
+
+    def get_legal_proceeding(self, proceeding_id: UUID) -> LegalProceeding | None:
+        model = self._session.get(LegalProceedingModel, str(proceeding_id))
+        return LegalProceeding.model_validate(model.payload) if model else None
+
+    def save_legal_proceeding(self, proceeding: LegalProceeding, expected_version: int) -> None:
+        model = self._session.get(LegalProceedingModel, str(proceeding.proceeding_id))
+        model = self._save_json_versioned(model, proceeding, expected_version, "Legal proceeding")
+        model.status = proceeding.status.value
+
+    def create_sanction(self, sanction: Sanction) -> None:
+        self._session.add(SanctionModel(sanction_id=str(sanction.sanction_id), case_id=str(sanction.case_id), proceeding_id=str(sanction.proceeding_id), status=sanction.status.value, payload=sanction.model_dump(mode="json")))
+
+    def create_appeal(self, appeal: Appeal) -> None:
+        self._session.add(AppealModel(appeal_id=str(appeal.appeal_id), case_id=str(appeal.case_id), proceeding_id=str(appeal.proceeding_id), payload=appeal.model_dump(mode="json")))
+
+    def create_organization_relation(self, relation: OrganizationRelation) -> None:
+        self._session.add(OrganizationRelationModel(relation_id=str(relation.relation_id), world_id=str(relation.world_id), source_organization_id=str(relation.source_organization_id), target_organization_id=str(relation.target_organization_id), payload=relation.model_dump(mode="json")))
+
+    def create_treaty(self, treaty: Treaty) -> None:
+        self._session.add(TreatyModel(treaty_id=str(treaty.treaty_id), world_id=str(treaty.world_id), status=treaty.status.value, payload=treaty.model_dump(mode="json")))
+
+    def get_treaty(self, treaty_id: UUID) -> Treaty | None:
+        model = self._session.get(TreatyModel, str(treaty_id))
+        return Treaty.model_validate(model.payload) if model else None
+
+    def save_treaty(self, treaty: Treaty, expected_version: int) -> None:
+        model = self._session.get(TreatyModel, str(treaty.treaty_id))
+        model = self._save_json_versioned(model, treaty, expected_version, "Treaty")
+        model.status = treaty.status.value
+
+    def create_diplomatic_action(self, action: DiplomaticAction) -> None:
+        self._session.add(DiplomaticActionModel(action_id=str(action.action_id), world_id=str(action.world_id), source_organization_id=str(action.source_organization_id), target_organization_id=str(action.target_organization_id), status=action.status.value, payload=action.model_dump(mode="json")))
+
+    def create_strategic_conflict(self, conflict: StrategicConflict) -> None:
+        self._session.add(StrategicConflictModel(conflict_id=str(conflict.conflict_id), world_id=str(conflict.world_id), escalation_stage=conflict.escalation_stage, status=conflict.status, payload=conflict.model_dump(mode="json")))
+
+    def get_strategic_conflict(self, conflict_id: UUID) -> StrategicConflict | None:
+        model = self._session.get(StrategicConflictModel, str(conflict_id))
+        return StrategicConflict.model_validate(model.payload) if model else None
+
+    def save_strategic_conflict(self, conflict: StrategicConflict, expected_version: int) -> None:
+        model = self._session.get(StrategicConflictModel, str(conflict.conflict_id))
+        model = self._save_json_versioned(model, conflict, expected_version, "Strategic conflict")
+        model.escalation_stage = conflict.escalation_stage
+        model.status = conflict.status
+
+    def create_security_threat(self, threat: SecurityThreat) -> None:
+        self._session.add(SecurityThreatModel(threat_id=str(threat.threat_id), world_id=str(threat.world_id), status=threat.status.value, payload=threat.model_dump(mode="json")))
+
+    def get_security_threat(self, threat_id: UUID) -> SecurityThreat | None:
+        model = self._session.get(SecurityThreatModel, str(threat_id))
+        return SecurityThreat.model_validate(model.payload) if model else None
+
+    def save_security_threat(self, threat: SecurityThreat, expected_version: int) -> None:
+        model = self._session.get(SecurityThreatModel, str(threat.threat_id))
+        model = self._save_json_versioned(model, threat, expected_version, "Security threat")
+        model.status = threat.status.value
+
+    def create_security_incident(self, incident: SecurityIncident) -> None:
+        self._session.add(SecurityIncidentModel(incident_id=str(incident.incident_id), threat_id=str(incident.threat_id), payload=incident.model_dump(mode="json")))
+
+    def get_security_incident(self, incident_id: UUID) -> SecurityIncident | None:
+        model = self._session.get(SecurityIncidentModel, str(incident_id))
+        return SecurityIncident.model_validate(model.payload) if model else None
+
+    def create_intelligence_operation(self, operation: IntelligenceOperation) -> None:
+        self._session.add(IntelligenceOperationModel(operation_id=str(operation.operation_id), world_id=str(operation.world_id), organization_id=str(operation.organization_id), status=operation.status.value, payload=operation.model_dump(mode="json")))
+
+    def get_intelligence_operation(self, operation_id: UUID) -> IntelligenceOperation | None:
+        model = self._session.get(IntelligenceOperationModel, str(operation_id))
+        return IntelligenceOperation.model_validate(model.payload) if model else None
+
+    def save_intelligence_operation(self, operation: IntelligenceOperation, expected_version: int) -> None:
+        model = self._session.get(IntelligenceOperationModel, str(operation.operation_id))
+        model = self._save_json_versioned(model, operation, expected_version, "Intelligence operation")
+        model.status = operation.status.value
+
+    def create_security_resolution(self, resolution: SecurityResolution) -> None:
+        self._session.add(SecurityResolutionModel(resolution_id=str(resolution.resolution_id), threat_id=str(resolution.threat_id), source_event_id=str(resolution.source_event_id), payload=resolution.model_dump(mode="json")))
+
+    @staticmethod
+    def _save_json_versioned(model, entity, expected_version: int, label: str):
+        if model is None:
+            raise KeyError(f"Unknown {label.lower()}")
+        if type(entity).model_validate(model.payload).provenance.version != expected_version:
+            raise StaleWorldStateError(f"{label} changed during simulation")
+        model.payload = entity.model_dump(mode="json")
+        return model
+
+    @staticmethod
+    def _check_expected_version(model, expected_version: int | None) -> None:
+        if expected_version is not None and model.version != expected_version:
+            raise StaleWorldStateError("Natural system state changed during simulation")
+
+    @staticmethod
+    def _save_provenance(model, provenance: RecordProvenance) -> None:
+        model.source_type = provenance.source_type
+        model.source_id = provenance.source_id
+        model.origin_event_id = (
+            str(provenance.origin_event_id)
+            if provenance.origin_event_id is not None
+            else None
+        )
+        model.version = provenance.version
+        model.created_at = provenance.created_at
+        model.updated_at = provenance.updated_at
+
+    def create_public_channel(self, channel: PublicChannel) -> None:
+        self._session.add(
+            PublicChannelModel(
+                channel_id=str(channel.channel_id),
+                world_id=str(channel.world_id),
+                payload=channel.model_dump(mode="json"),
+            )
+        )
+
+    def get_public_channel(self, channel_id: UUID) -> PublicChannel | None:
+        model = self._session.get(PublicChannelModel, str(channel_id))
+        return PublicChannel.model_validate(model.payload) if model else None
+
+    def create_public_information(
+        self,
+        publication: PublicInformation,
+    ) -> None:
+        self._session.add(
+            PublicInformationModel(
+                publication_id=str(publication.publication_id),
+                world_id=str(publication.world_id),
+                channel_id=str(publication.channel_id),
+                published_at=publication.published_at,
+                payload=publication.model_dump(mode="json"),
+            )
+        )
+
+    def create_collective_reception(
+        self,
+        reception: CollectiveReception,
+    ) -> None:
+        self._session.add(
+            CollectiveReceptionModel(
+                reception_id=str(reception.reception_id),
+                publication_id=str(reception.publication_id),
+                population_id=str(reception.population_id),
+                received_at=reception.received_at,
+                payload=reception.model_dump(mode="json"),
+            )
+        )
+
+    def create_creative_work(self, work: CreativeWork) -> None:
+        self._session.add(
+            CreativeWorkModel(
+                work_id=str(work.work_id),
+                world_id=str(work.world_id),
+                payload=work.model_dump(mode="json"),
+            )
+        )
+
+    def create_leisure_routine(self, routine: LeisureRoutine) -> None:
+        self._session.add(
+            LeisureRoutineModel(
+                routine_id=str(routine.routine_id),
+                actor_type=routine.actor.actor_type.value,
+                actor_id=str(routine.actor.actor_id),
+                payload=routine.model_dump(mode="json"),
+            )
+        )
+
+    def create_visual_identity(self, identity: VisualIdentity) -> None:
+        self._session.add(
+            VisualIdentityModel(
+                identity_id=str(identity.identity_id),
+                actor_type=identity.subject.actor_type.value,
+                actor_id=str(identity.subject.actor_id),
+                payload=identity.model_dump(mode="json"),
+            )
+        )
+
+    def create_sonic_identity(self, identity: SonicIdentity) -> None:
+        self._session.add(
+            SonicIdentityModel(
+                identity_id=str(identity.identity_id),
+                actor_type=identity.subject.actor_type.value,
+                actor_id=str(identity.subject.actor_id),
+                payload=identity.model_dump(mode="json"),
+            )
+        )
+
+    def create_generated_asset(self, asset: GeneratedAsset) -> None:
+        self._session.add(
+            GeneratedAssetModel(
+                asset_id=str(asset.asset_id),
+                actor_type=asset.subject.actor_type.value,
+                actor_id=str(asset.subject.actor_id),
+                kind=asset.kind.value,
+                canonical_identity_id=str(asset.canonical_identity_id),
+                filesystem_reference=asset.filesystem_reference,
+                generated_at=asset.generated_at,
+                payload=asset.model_dump(mode="json"),
+            )
+        )
+
+    def create_canonical_proposal(
+        self,
+        proposal: CanonicalProposal,
+    ) -> None:
+        self._session.add(
+            CanonicalProposalModel(
+                proposal_id=str(proposal.proposal_id),
+                world_id=str(proposal.world_id),
+                entity_type=proposal.entity_type,
+                entity_id=str(proposal.entity_id) if proposal.entity_id else None,
+                status=proposal.status.value,
+                payload=proposal.model_dump(mode="json"),
+            )
+        )
+
+    def get_canonical_proposal(
+        self,
+        proposal_id: UUID,
+    ) -> CanonicalProposal | None:
+        model = self._session.get(CanonicalProposalModel, str(proposal_id))
+        return CanonicalProposal.model_validate(model.payload) if model else None
+
+    def create_canonical_record(self, record: CanonicalRecord) -> None:
+        self._session.add(
+            CanonicalRecordModel(
+                record_id=str(record.record_id),
+                proposal_id=str(record.proposal_id),
+                world_id=str(record.world_id),
+                entity_type=record.entity_type,
+                entity_id=str(record.entity_id) if record.entity_id else None,
+                level=int(record.level),
+                revision=record.revision,
+                status=record.status.value,
+                supersedes_record_id=(
+                    str(record.supersedes_record_id)
+                    if record.supersedes_record_id
+                    else None
+                ),
+                payload=record.model_dump(mode="json"),
+            )
+        )
+
+    def get_canonical_record(self, record_id: UUID) -> CanonicalRecord | None:
+        model = self._session.get(CanonicalRecordModel, str(record_id))
+        return CanonicalRecord.model_validate(model.payload) if model else None
+
+    def list_canonical_records(
+        self,
+        *,
+        world_id: UUID,
+        entity_type: str | None = None,
+        entity_id: UUID | None = None,
+    ) -> tuple[CanonicalRecord, ...]:
+        statement = select(CanonicalRecordModel).where(
+            CanonicalRecordModel.world_id == str(world_id)
+        )
+        if entity_type is not None:
+            statement = statement.where(
+                CanonicalRecordModel.entity_type == entity_type
+            )
+        if entity_id is not None:
+            statement = statement.where(
+                CanonicalRecordModel.entity_id == str(entity_id)
+            )
+        models = self._session.scalars(
+            statement.order_by(CanonicalRecordModel.revision)
+        ).all()
+        return tuple(
+            CanonicalRecord.model_validate(model.payload) for model in models
+        )
+
+    def get_event(self, event_id: UUID) -> EventEnvelope | None:
+        model = self._session.get(EventLedgerModel, str(event_id))
+        if model is None:
+            return None
+        return EventEnvelope(
+            event_id=UUID(model.event_id),
+            world_id=UUID(model.world_id),
+            timeline_id=UUID(model.timeline_id),
+            occurred_at=model.occurred_at,
+            recorded_at=model.recorded_at,
+            sequence=model.sequence,
+            event_type=model.event_type,
+            source_type=model.source_type,
+            source_id=model.source_id,
+            caused_by=tuple(UUID(value) for value in model.caused_by),
+            priority=model.priority,
+            payload_version=model.payload_version,
+            payload=model.payload,
+            interruption_class=InterruptionClass(model.interruption_class),
+        )
+
+    def create_character_sheet(self, sheet: CharacterSheet) -> None:
+        self._session.add(
+            CharacterSheetModel(
+                character_id=str(sheet.character_id),
+                world_id=str(sheet.world_id),
+                ruleset_id=sheet.ruleset_id,
+                version=sheet.version,
+                payload=sheet.model_dump(mode="json"),
+            )
+        )
+
+    def get_character_sheet(self, character_id: UUID) -> CharacterSheet | None:
+        model = self._session.get(CharacterSheetModel, str(character_id))
+        return CharacterSheet.model_validate(model.payload) if model else None
+
+    def save_character_sheet(
+        self, sheet: CharacterSheet, expected_version: int
+    ) -> None:
+        model = self._session.get(CharacterSheetModel, str(sheet.character_id))
+        if model is None:
+            raise KeyError(f"Unknown character sheet {sheet.character_id}")
+        if model.version != expected_version:
+            raise StaleWorldStateError("Character sheet changed during progression")
+        model.world_id = str(sheet.world_id)
+        model.ruleset_id = sheet.ruleset_id
+        model.version = sheet.version
+        model.payload = sheet.model_dump(mode="json")
+
+    def create_progression_evidence(
+        self, evidence: CharacterProgressionEvidence
+    ) -> None:
+        self._session.add(
+            CharacterProgressionEvidenceModel(
+                evidence_id=str(evidence.evidence_id),
+                character_id=str(evidence.character_id),
+                world_id=str(evidence.world_id),
+                payload=evidence.model_dump(mode="json"),
+            )
+        )
+
+    def get_progression_evidence(
+        self, evidence_id: UUID
+    ) -> CharacterProgressionEvidence | None:
+        model = self._session.get(
+            CharacterProgressionEvidenceModel, str(evidence_id)
+        )
+        return CharacterProgressionEvidence.model_validate(model.payload) if model else None
+
+    def create_progression_proposal(
+        self, proposal: CharacterProgressionProposal
+    ) -> None:
+        self._session.add(
+            CharacterProgressionProposalModel(
+                proposal_id=str(proposal.proposal_id),
+                request_id=str(proposal.request_id),
+                character_id=str(proposal.character_id),
+                world_id=str(proposal.world_id),
+                payload=proposal.model_dump(mode="json"),
+            )
+        )
+
+    def get_progression_proposal(
+        self, proposal_id: UUID
+    ) -> CharacterProgressionProposal | None:
+        model = self._session.get(
+            CharacterProgressionProposalModel, str(proposal_id)
+        )
+        return CharacterProgressionProposal.model_validate(model.payload) if model else None
+
+    def get_progression_proposal_by_request(
+        self, request_id: UUID
+    ) -> CharacterProgressionProposal | None:
+        model = self._session.scalar(
+            select(CharacterProgressionProposalModel).where(
+                CharacterProgressionProposalModel.request_id == str(request_id)
+            )
+        )
+        return CharacterProgressionProposal.model_validate(model.payload) if model else None
+
+    def create_progression_validation(
+        self, validation: CharacterProgressionValidation
+    ) -> None:
+        self._session.add(
+            CharacterProgressionValidationModel(
+                validation_id=str(validation.validation_id),
+                proposal_id=str(validation.proposal_id),
+                payload=validation.model_dump(mode="json"),
+            )
+        )
+
+    def list_progression_validations(
+        self, proposal_id: UUID
+    ) -> tuple[CharacterProgressionValidation, ...]:
+        models = self._session.scalars(
+            select(CharacterProgressionValidationModel).where(
+                CharacterProgressionValidationModel.proposal_id == str(proposal_id)
+            )
+        ).all()
+        return tuple(
+            CharacterProgressionValidation.model_validate(model.payload)
+            for model in models
+        )
+
+    def create_progression_application(
+        self, application: CharacterProgressionApplication
+    ) -> None:
+        self._session.add(
+            CharacterProgressionApplicationModel(
+                application_id=str(application.application_id),
+                proposal_id=str(application.proposal_id),
+                character_id=str(application.character_id),
+                payload=application.model_dump(mode="json"),
+            )
+        )
+
+    def get_progression_application(
+        self, proposal_id: UUID
+    ) -> CharacterProgressionApplication | None:
+        model = self._session.scalar(
+            select(CharacterProgressionApplicationModel).where(
+                CharacterProgressionApplicationModel.proposal_id == str(proposal_id)
+            )
+        )
+        return CharacterProgressionApplication.model_validate(model.payload) if model else None
+
+    def list_progression_applications(
+        self, character_id: UUID
+    ) -> tuple[CharacterProgressionApplication, ...]:
+        models = self._session.scalars(
+            select(CharacterProgressionApplicationModel)
+            .where(
+                CharacterProgressionApplicationModel.character_id
+                == str(character_id)
+            )
+            .order_by(CharacterProgressionApplicationModel.application_id)
+        ).all()
+        return tuple(
+            CharacterProgressionApplication.model_validate(model.payload)
+            for model in models
+        )
+
+    @staticmethod
+    def _species_contract(model: SpeciesModel) -> Species:
+        return Species(
+            species_id=UUID(model.species_id),
+            world_id=UUID(model.world_id),
+            name=model.name,
+            organism_kind=OrganismKind(model.organism_kind),
+            anatomy=model.anatomy,
+            physiology=model.physiology,
+            reproduction_model=model.reproduction_model,
+            nutrition=model.nutrition,
+            habitat=tuple(model.habitat),
+            senses=tuple(model.senses),
+            adaptations=tuple(model.adaptations),
+            lifecycle_stages=tuple(
+                LifecycleStage.model_validate(item) for item in model.lifecycle_stages
+            ),
+            resource_links=tuple(model.resource_links),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _habitat_contract(model: HabitatModel) -> Habitat:
+        return Habitat(
+            habitat_id=UUID(model.habitat_id),
+            world_id=UUID(model.world_id),
+            location_id=UUID(model.location_id),
+            name=model.name,
+            habitat_type=model.habitat_type,
+            habitability=model.habitability,
+            species_ids=tuple(UUID(item) for item in model.species_ids),
+            resources=tuple(model.resources),
+            resource_links=tuple(model.resource_links),
+            characteristics=model.characteristics,
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _population_contract(model: PopulationModel) -> Population:
+        return Population(
+            population_id=UUID(model.population_id),
+            world_id=UUID(model.world_id),
+            species_id=UUID(model.species_id),
+            location_id=UUID(model.location_id),
+            name=model.name,
+            cohorts=tuple(
+                PopulationCohort.model_validate(item) for item in model.cohorts
+            ),
+            aggregate_by_default=model.aggregate_by_default,
+            resource_links=tuple(model.resource_links),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _ecological_process_contract(
+        model: EcologicalProcessModel,
+    ) -> EcologicalProcess:
+        return EcologicalProcess(
+            process_id=UUID(model.process_id),
+            world_id=UUID(model.world_id),
+            location_id=UUID(model.location_id),
+            process_type=model.process_type,
+            measures={
+                key: Decimal(value) for key, value in model.measures.items()
+            },
+            population_links=tuple(UUID(item) for item in model.population_links),
+            resource_links=tuple(model.resource_links),
+            status=model.status,
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _health_state_contract(model: HealthStateModel) -> HealthState:
+        return HealthState(
+            state_id=UUID(model.state_id),
+            character_id=UUID(model.character_id),
+            species_id=UUID(model.species_id) if model.species_id else None,
+            physical_integrity=model.physical_integrity,
+            consciousness=model.consciousness,
+            ability_to_act=model.ability_to_act,
+            ability_to_fight=model.ability_to_fight,
+            conditions=tuple(
+                HealthCondition.model_validate(item) for item in model.conditions
+            ),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _location_contract(model: LocationModel) -> Location:
+        return Location(
+            location_id=UUID(model.location_id),
+            world_id=UUID(model.world_id),
+            name=model.name,
+            location_type=LocationType(model.location_type),
+            parent_location_id=(
+                UUID(model.parent_location_id)
+                if model.parent_location_id is not None
+                else None
+            ),
+            terrain=tuple(model.terrain),
+            climate=tuple(model.climate),
+            hydrology=tuple(model.hydrology),
+            flora_fauna=tuple(model.flora_fauna),
+            natural_resources=tuple(model.natural_resources),
+            population_density=model.population_density,
+            strategic_tags=tuple(model.strategic_tags),
+            risk_tags=tuple(model.risk_tags),
+            barrier_tags=tuple(model.barrier_tags),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _territory_claim_contract(model: TerritoryClaimModel) -> TerritoryClaim:
+        return TerritoryClaim(
+            claim_id=UUID(model.claim_id),
+            location_id=UUID(model.location_id),
+            semantics=ClaimSemantics(model.semantics),
+            owner=(
+                ActorReference(
+                    actor_type=ActorType(model.owner_actor_type),
+                    actor_id=UUID(model.owner_actor_id),
+                )
+                if model.owner_actor_type is not None
+                else None
+            ),
+            controller=(
+                ActorReference(
+                    actor_type=ActorType(model.controller_actor_type),
+                    actor_id=UUID(model.controller_actor_id),
+                )
+                if model.controller_actor_type is not None
+                else None
+            ),
+            status=ControlStatus(model.status),
+            basis=model.basis,
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _transport_route_contract(model: TransportRouteModel) -> TransportRoute:
+        return TransportRoute(
+            route_id=UUID(model.route_id),
+            world_id=UUID(model.world_id),
+            name=model.name,
+            start_location_id=UUID(model.start_location_id),
+            end_location_id=UUID(model.end_location_id),
+            modes=tuple(TransportMode(value) for value in model.modes),
+            availability=model.availability,
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _infrastructure_node_contract(
+        model: InfrastructureNodeModel,
+    ) -> InfrastructureNode:
+        return InfrastructureNode(
+            node_id=UUID(model.node_id),
+            world_id=UUID(model.world_id),
+            location_id=UUID(model.location_id),
+            name=model.name,
+            node_type=model.node_type,
+            availability=model.availability,
+            capacity=model.capacity,
+            safety_tags=tuple(model.safety_tags),
+            risk_tags=tuple(model.risk_tags),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _infrastructure_facility_contract(
+        model: InfrastructureFacilityModel,
+    ) -> InfrastructureFacility:
+        return InfrastructureFacility(
+            facility_id=UUID(model.facility_id),
+            node_id=UUID(model.node_id),
+            location_id=UUID(model.location_id),
+            facility_type=model.facility_type,
+            name=model.name,
+            availability=model.availability,
+            capacity=model.capacity,
+            resource_consumption=tuple(model.resource_consumption),
+            safety_tags=tuple(model.safety_tags),
+            risk_tags=tuple(model.risk_tags),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _route_segment_contract(
+        model: TransportRouteSegmentModel,
+    ) -> TransportRouteSegment:
+        return TransportRouteSegment(
+            segment_id=UUID(model.segment_id),
+            route_id=UUID(model.route_id),
+            sequence=model.sequence,
+            start_location_id=UUID(model.start_location_id),
+            end_location_id=UUID(model.end_location_id),
+            physical_distance=Decimal(model.physical_distance),
+            distance_unit=model.distance_unit,
+            base_duration=timedelta(
+                microseconds=model.base_duration_microseconds
+            ),
+            mode=TransportMode(model.mode),
+            costs=tuple(ResourceCharge.model_validate(item) for item in model.costs),
+            capacity=model.capacity,
+            availability=model.availability,
+            resource_consumption=tuple(
+                ResourceCharge.model_validate(item)
+                for item in model.resource_consumption
+            ),
+            safety_tags=tuple(model.safety_tags),
+            risk_tags=tuple(model.risk_tags),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
+        )
+
+    @staticmethod
+    def _actor_position_contract(model: ActorPositionModel) -> ActorPosition:
+        return ActorPosition(
+            actor=ActorReference(
+                actor_type=ActorType(model.actor_type),
+                actor_id=UUID(model.actor_id),
+            ),
+            location_id=UUID(model.location_id),
+            journey_id=UUID(model.journey_id) if model.journey_id else None,
+            version=model.version,
+        )
+
+    @staticmethod
+    def _journey_contract(model: JourneyModel) -> Journey:
+        from aether.contracts import TravelParticipant, TravelParticipantType
+
+        return Journey(
+            journey_id=UUID(model.journey_id),
+            world_id=UUID(model.world_id),
+            timeline_id=UUID(model.timeline_id),
+            participants=tuple(
+                TravelParticipant(
+                    actor=ActorReference(
+                        actor_type=ActorType(item["actor_type"]),
+                        actor_id=UUID(item["actor_id"]),
+                    ),
+                    participant_type=TravelParticipantType(item["participant_type"]),
+                )
+                for item in model.participants
+            ),
+            start_location_id=UUID(model.start_location_id),
+            end_location_id=UUID(model.end_location_id),
+            route_id=UUID(model.route_id),
+            segment_ids=tuple(UUID(item) for item in model.segment_ids),
+            resource_owner=(
+                ActorReference.model_validate(model.resource_owner)
+                if model.resource_owner is not None
+                else None
+            ),
+            costs=tuple(ResourceCharge.model_validate(item) for item in model.costs),
+            resource_consumption=tuple(
+                ResourceCharge.model_validate(item)
+                for item in model.resource_consumption
+            ),
+            started_at=model.started_at,
+            expected_arrival_at=model.expected_arrival_at,
+            arrived_at=model.arrived_at,
+            status=JourneyStatus(model.status),
+            scheduled_event_id=UUID(model.scheduled_event_id),
+            provenance=SqlAlchemySimulationRepository._provenance_contract(model),
         )
 
     def _set_scheduled_status(

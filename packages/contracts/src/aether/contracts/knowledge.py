@@ -77,8 +77,8 @@ class InformationTransmission(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     transmission_id: UUID
-    source_event_id: UUID | None
-    sender_character_id: UUID | None
+    source_event_id: UUID | None = None
+    sender_character_id: UUID | None = None
     recipient_character_id: UUID
     fact_key: str
     statement: str
@@ -91,6 +91,14 @@ class InformationTransmission(BaseModel):
     alterations: tuple[str, ...] = ()
     sender_intent: str | None = None
     reach: str | None = None
+    source_language_id: UUID | None = None
+    target_language_id: UUID | None = None
+    source_dialect_id: UUID | None = None
+    target_dialect_id: UUID | None = None
+    writing_system_id: UUID | None = None
+    presentation_language: str | None = None
+    translation_semantics: tuple[str, ...] = ()
+    imperfect_translation: bool = False
 
     @field_validator("fact_key", "statement")
     @classmethod

@@ -46,5 +46,33 @@ class PlanStepSchedulingRejectedError(AetherDomainError):
     pass
 
 
+class CanonizationValidationError(AetherDomainError):
+    pass
+
+
 class ResourceInvariantError(AetherDomainError):
+    pass
+
+
+class OrganizationDecisionConflictError(AetherDomainError):
+    pass
+
+
+class OrganizationDecisionValidationError(AetherDomainError):
+    pass
+
+
+class OrganizationAuthorityError(AetherDomainError):
+    pass
+
+
+class CharacterGenesisError(AetherDomainError):
+    pass
+
+
+class CharacterProgressionError(AetherDomainError):
+    pass
+
+
+class SimulationTierTransitionError(AetherDomainError):
     pass
